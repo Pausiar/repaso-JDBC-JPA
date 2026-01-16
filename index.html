@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen JDBC & JPA - 100 Preguntas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        .exam-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .exam-btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: bold;
+        }
+
+        .exam-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .exam-btn.active {
+            background: linear-gradient(135deg, #00d9ff 0%, #00ff88 100%);
+            color: #1a1a2e;
+        }
+
+        .progress-container {
+            background: #2a2a4a;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: #1a1a2e;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d9ff, #00ff88);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #00ff88;
+        }
+
+        .question-card {
+            background: #2a2a4a;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-number {
+            color: #00d9ff;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .question-text code {
+            background: #1a1a2e;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            background: #1a1a2e;
+            border: 2px solid #3a3a5a;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #00d9ff;
+            background: #2a2a4a;
+        }
+
+        .option.correct {
+            background: linear-gradient(135deg, #00ff88 0%, #00d9a0 100%);
+            border-color: #00ff88;
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+
+        .option.incorrect {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
+            border-color: #ff4757;
+            color: white;
+            font-weight: bold;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #2a2a4a;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            animation: modalPop 0.3s ease;
+        }
+
+        @keyframes modalPop {
+            from {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-content.success {
+            border: 3px solid #00ff88;
+        }
+
+        .modal-content.fail {
+            border: 3px solid #ff4757;
+        }
+
+        .modal-content h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .modal-content.success h2 {
+            color: #00ff88;
+        }
+
+        .modal-content.fail h2 {
+            color: #ff4757;
+        }
+
+        .modal-content p {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            color: #ccc;
+        }
+
+        .modal-btn {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .modal-btn.success {
+            background: linear-gradient(135deg, #00ff88 0%, #00d9a0 100%);
+            color: #1a1a2e;
+        }
+
+        .modal-btn.fail {
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
+            color: white;
+        }
+
+        .modal-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .stat-value.correct-count {
+            color: #00ff88;
+        }
+
+        .stat-value.incorrect-count {
+            color: #ff4757;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .home-screen {
+            text-align: center;
+            padding: 50px 20px;
+        }
+
+        .home-screen h2 {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: #00d9ff;
+        }
+
+        .exam-cards {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .exam-card {
+            background: #2a2a4a;
+            border-radius: 15px;
+            padding: 30px;
+            width: 250px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .exam-card:hover {
+            transform: translateY(-5px);
+            border-color: #00d9ff;
+            box-shadow: 0 15px 40px rgba(0, 217, 255, 0.2);
+        }
+
+        .exam-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: #00ff88;
+        }
+
+        .exam-card p {
+            color: #aaa;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .exam-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Examen JDBC & JPA</h1>
+            <p>100 preguntas para dominar la teoría</p>
+        </header>
+
+        <!-- Pantalla de inicio -->
+        <div id="homeScreen" class="home-screen">
+            <h2>Selecciona un examen para comenzar</h2>
+            <div class="exam-cards">
+                <div class="exam-card" onclick="startExam(1)">
+                    <h3>📝 Examen 1</h3>
+                    <p>33 preguntas</p>
+                    <p>JDBC Básico</p>
+                </div>
+                <div class="exam-card" onclick="startExam(2)">
+                    <h3>📝 Examen 2</h3>
+                    <p>33 preguntas</p>
+                    <p>JDBC Avanzado & JPA Básico</p>
+                </div>
+                <div class="exam-card" onclick="startExam(3)">
+                    <h3>📝 Examen 3</h3>
+                    <p>34 preguntas</p>
+                    <p>JPA Relaciones & Avanzado</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de examen -->
+        <div id="examScreen" class="hidden">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                </div>
+                <div class="progress-text" id="progressText">Pregunta 1 de 33</div>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value correct-count" id="correctCount">0</div>
+                        <div class="stat-label">Correctas</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value incorrect-count" id="incorrectCount">0</div>
+                        <div class="stat-label">Intentos fallidos</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-number" id="questionNumber">Pregunta 1</div>
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+            </div>
+
+            <button class="back-btn" onclick="goHome()">← Volver al menú</button>
+        </div>
+    </div>
+
+    <!-- Modal de éxito -->
+    <div class="modal" id="successModal">
+        <div class="modal-content success">
+            <h2>🎉 ¡Felicidades!</h2>
+            <p id="successMessage">Has completado el examen correctamente.</p>
+            <button class="modal-btn success" onclick="closeSuccessModal()">Continuar</button>
+        </div>
+    </div>
+
+    <!-- Modal de fallo -->
+    <div class="modal" id="failModal">
+        <div class="modal-content fail">
+            <h2>❌ ¡Respuesta Incorrecta!</h2>
+            <p id="failMessage">La respuesta correcta era otra. Debes volver a empezar para memorizar mejor.</p>
+            <button class="modal-btn fail" onclick="restartExam()">Reintentar Examen</button>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos de preguntas
+        const allQuestions = [
+            // ============ EXAMEN 1: JDBC BÁSICO (33 preguntas) ============
+            // Preguntas 1-33
+            {
+                question: "¿Qué es el desfase objeto-relacional?",
+                options: [
+                    "A) Un error de programación en Java",
+                    "B) El conflicto técnico entre POO y bases de datos relacionales",
+                    "C) Un tipo de excepción en JDBC",
+                    "D) Una característica de JPA"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué significa JDBC?",
+                options: [
+                    "A) Java Data Base Connection",
+                    "B) Java Database Connectivity",
+                    "C) Java Driver Base Connector",
+                    "D) Java Data Binding Class"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué conector está orientado a aplicaciones Windows?",
+                options: [
+                    "A) JDBC",
+                    "B) ODBC",
+                    "C) OLE-DB/ADO",
+                    "D) JPA"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿En qué lenguaje está basado ODBC?",
+                options: [
+                    "A) Java",
+                    "B) Python",
+                    "C) C",
+                    "D) C++"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Cuál es la ventaja clave de los drivers en JDBC?",
+                options: [
+                    "A) Son más rápidos que otras tecnologías",
+                    "B) Permiten una arquitectura genérica con interfaz común",
+                    "C) No requieren configuración",
+                    "D) Funcionan sin conexión a internet"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿En qué paquete se encuentran las clases principales de JDBC?",
+                options: [
+                    "A) java.jdbc",
+                    "B) java.database",
+                    "C) java.sql",
+                    "D) javax.sql"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué clase/interfaz gestiona los drivers del sistema en JDBC?",
+                options: [
+                    "A) Driver",
+                    "B) DriverManager",
+                    "C) Connection",
+                    "D) Statement"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué interfaz representa una conexión activa a la base de datos?",
+                options: [
+                    "A) Driver",
+                    "B) Statement",
+                    "C) Connection",
+                    "D) ResultSet"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué interfaz se usa para ejecutar sentencias SQL sin parámetros?",
+                options: [
+                    "A) PreparedStatement",
+                    "B) Statement",
+                    "C) CallableStatement",
+                    "D) Connection"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué interfaz se usa para ejecutar procedimientos almacenados?",
+                options: [
+                    "A) Statement",
+                    "B) PreparedStatement",
+                    "C) CallableStatement",
+                    "D) StoredProcedure"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué clase contiene los resultados de una consulta SELECT?",
+                options: [
+                    "A) Statement",
+                    "B) QueryResult",
+                    "C) ResultSet",
+                    "D) DataSet"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué clase gestiona las excepciones de base de datos en JDBC?",
+                options: [
+                    "A) DatabaseException",
+                    "B) JDBCException",
+                    "C) SQLException",
+                    "D) ConnectionException"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Cuál es el primer paso para usar JDBC?",
+                options: [
+                    "A) Establecer la conexión",
+                    "B) Cargar el driver",
+                    "C) Ejecutar sentencias SQL",
+                    "D) Crear el ResultSet"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué método se usa para cargar el driver de MySQL?",
+                options: [
+                    "A) Driver.load()",
+                    "B) Class.forName()",
+                    "C) DriverManager.loadDriver()",
+                    "D) Connection.getDriver()"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Es necesario cargar el driver manualmente si usas Maven/Gradle?",
+                options: [
+                    "A) Sí, siempre",
+                    "B) No, no es necesario",
+                    "C) Solo en producción",
+                    "D) Solo para MySQL"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué método de DriverManager se usa para establecer una conexión?",
+                options: [
+                    "A) createConnection()",
+                    "B) openConnection()",
+                    "C) getConnection()",
+                    "D) connect()"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Cuál es la URL de conexión correcta para MySQL?",
+                options: [
+                    "A) mysql://localhost:3306/nomdb",
+                    "B) jdbc:mysql://localhost:3306/nomdb",
+                    "C) jdbc://mysql:localhost:3306/nomdb",
+                    "D) database:mysql://localhost/nomdb"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Cuál es el puerto por defecto de MySQL?",
+                options: [
+                    "A) 5432",
+                    "B) 1521",
+                    "C) 3306",
+                    "D) 8080"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Cuál es el puerto por defecto de PostgreSQL?",
+                options: [
+                    "A) 3306",
+                    "B) 5432",
+                    "C) 1521",
+                    "D) 27017"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Cuál es el puerto por defecto de Oracle?",
+                options: [
+                    "A) 3306",
+                    "B) 5432",
+                    "C) 1521",
+                    "D) 1433"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Cómo se indica la ruta de una base de datos SQLite?",
+                options: [
+                    "A) jdbc:sqlite://localhost/nomdb",
+                    "B) jdbc:sqlite:src/main/resources/nomdb.db",
+                    "C) sqlite://src/main/resources/nomdb.db",
+                    "D) jdbc://sqlite:nomdb.db"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué método de Connection se usa para crear un Statement?",
+                options: [
+                    "A) newStatement()",
+                    "B) getStatement()",
+                    "C) createStatement()",
+                    "D) buildStatement()"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿En qué orden deben cerrarse los recursos JDBC?",
+                options: [
+                    "A) Connection, Statement, ResultSet",
+                    "B) Statement, Connection, ResultSet",
+                    "C) ResultSet, Statement, Connection",
+                    "D) No importa el orden"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Cuántos pasos clave hay para usar JDBC?",
+                options: [
+                    "A) 2",
+                    "B) 3",
+                    "C) 4",
+                    "D) 5"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué característica tiene PreparedStatement que no tiene Statement?",
+                options: [
+                    "A) Ejecutar consultas",
+                    "B) Admitir placeholders con ?",
+                    "C) Devolver ResultSet",
+                    "D) Conectar a la base de datos"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Contra qué protege PreparedStatement?",
+                options: [
+                    "A) Errores de conexión",
+                    "B) SQL Injection",
+                    "C) Pérdida de datos",
+                    "D) Timeouts"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué tipo de Statement tiene mejor rendimiento en consultas repetidas?",
+                options: [
+                    "A) Statement, porque es más simple",
+                    "B) PreparedStatement, porque precompila",
+                    "C) CallableStatement",
+                    "D) Ambos tienen el mismo rendimiento"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué método se usa para ejecutar un SELECT?",
+                options: [
+                    "A) execute()",
+                    "B) executeUpdate()",
+                    "C) executeQuery()",
+                    "D) runQuery()"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué retorna el método executeQuery()?",
+                options: [
+                    "A) int",
+                    "B) boolean",
+                    "C) ResultSet",
+                    "D) void"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué método se usa para INSERT, UPDATE o DELETE?",
+                options: [
+                    "A) executeQuery()",
+                    "B) executeUpdate()",
+                    "C) execute()",
+                    "D) executeInsert()"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué retorna el método executeUpdate()?",
+                options: [
+                    "A) ResultSet",
+                    "B) boolean",
+                    "C) int (filas afectadas)",
+                    "D) String"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué retorna el método execute()?",
+                options: [
+                    "A) ResultSet",
+                    "B) int",
+                    "C) boolean",
+                    "D) void"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Para qué tipo de SQL se puede usar execute()?",
+                options: [
+                    "A) Solo SELECT",
+                    "B) Solo INSERT",
+                    "C) Solo DDL",
+                    "D) Cualquier SQL"
+                ],
+                correct: 3
+            },
+
+            // ============ EXAMEN 2: JDBC AVANZADO & JPA BÁSICO (33 preguntas) ============
+            // Preguntas 34-66
+            {
+                question: "¿Qué método de ResultSet avanza a la siguiente fila?",
+                options: [
+                    "A) advance()",
+                    "B) nextRow()",
+                    "C) next()",
+                    "D) moveNext()"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué retorna rs.next() cuando no hay más filas?",
+                options: [
+                    "A) null",
+                    "B) -1",
+                    "C) false",
+                    "D) Lanza una excepción"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Desde qué índice empiezan las columnas en ResultSet?",
+                options: [
+                    "A) 0",
+                    "B) 1",
+                    "C) -1",
+                    "D) Depende del driver"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué método de ResultSet obtiene un valor como texto?",
+                options: [
+                    "A) getText()",
+                    "B) getValue()",
+                    "C) getString()",
+                    "D) getChar()"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué método de ResultSet obtiene un valor como fecha?",
+                options: [
+                    "A) getDateTime()",
+                    "B) getDate()",
+                    "C) getTimestamp()",
+                    "D) getCalendar()"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué significa DDL?",
+                options: [
+                    "A) Data Definition Language",
+                    "B) Data Description Logic",
+                    "C) Database Definition Layer",
+                    "D) Dynamic Data Language"
+                ],
+                correct: 0
+            },
+            {
+                question: "¿Qué sentencia DDL se usa para crear tablas?",
+                options: [
+                    "A) INSERT",
+                    "B) CREATE",
+                    "C) BUILD",
+                    "D) MAKE"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué sentencia DDL modifica la estructura de una tabla?",
+                options: [
+                    "A) UPDATE",
+                    "B) MODIFY",
+                    "C) ALTER",
+                    "D) CHANGE"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué sentencia DDL elimina una tabla?",
+                options: [
+                    "A) DELETE",
+                    "B) REMOVE",
+                    "C) DROP",
+                    "D) DESTROY"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué estructura se recomienda para gestionar excepciones JDBC?",
+                options: [
+                    "A) if-else",
+                    "B) try-catch",
+                    "C) switch-case",
+                    "D) while-loop"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué ventaja tiene try-with-resources?",
+                options: [
+                    "A) Es más rápido",
+                    "B) Cierra automáticamente los recursos",
+                    "C) No lanza excepciones",
+                    "D) Usa menos memoria"
+                ],
+                correct: 1
+            },
+            {
+                question: "En PreparedStatement, ¿cómo se establece el primer parámetro String?",
+                options: [
+                    "A) pstmt.setString(0, valor)",
+                    "B) pstmt.setString(1, valor)",
+                    "C) pstmt.setParam(1, valor)",
+                    "D) pstmt.set(1, valor)"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué método establece un parámetro Double en PreparedStatement?",
+                options: [
+                    "A) setDecimal()",
+                    "B) setFloat()",
+                    "C) setDouble()",
+                    "D) setNumber()"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué es JPA?",
+                options: [
+                    "A) Java Programming API",
+                    "B) Java Persistence API",
+                    "C) Java Platform Architecture",
+                    "D) Java Process Application"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿JPA es una implementación o una especificación?",
+                options: [
+                    "A) Una implementación",
+                    "B) Una especificación/interfaz",
+                    "C) Una librería",
+                    "D) Un framework completo"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Cuál es la implementación más popular de JPA?",
+                options: [
+                    "A) Spring Boot",
+                    "B) MyBatis",
+                    "C) Hibernate",
+                    "D) EclipseLink"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué significa ORM?",
+                options: [
+                    "A) Object Relation Manager",
+                    "B) Object-Relational Mapping",
+                    "C) Object Resource Model",
+                    "D) Oriented Relational Method"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué proceso convierte datos de BD a objetos Java?",
+                options: [
+                    "A) Serialization",
+                    "B) Mapping",
+                    "C) Hydration",
+                    "D) Parsing"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué anotación marca una clase como entidad JPA?",
+                options: [
+                    "A) @Table",
+                    "B) @Entity",
+                    "C) @Model",
+                    "D) @Persistent"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué debe tener obligatoriamente una clase @Entity?",
+                options: [
+                    "A) Un constructor con parámetros",
+                    "B) Un método toString()",
+                    "C) Un campo con @Id",
+                    "D) Una lista de relaciones"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué anotación especifica el nombre de la tabla?",
+                options: [
+                    "A) @Entity",
+                    "B) @Table",
+                    "C) @Column",
+                    "D) @TableName"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué anotación marca la clave primaria?",
+                options: [
+                    "A) @Primary",
+                    "B) @Key",
+                    "C) @Id",
+                    "D) @PrimaryKey"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué anotación genera automáticamente la clave primaria?",
+                options: [
+                    "A) @AutoGenerate",
+                    "B) @Generated",
+                    "C) @GeneratedValue",
+                    "D) @AutoId"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué estrategia de @GeneratedValue usa AUTO_INCREMENT?",
+                options: [
+                    "A) AUTO",
+                    "B) IDENTITY",
+                    "C) SEQUENCE",
+                    "D) TABLE"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué estrategia de @GeneratedValue usa secuencias SQL?",
+                options: [
+                    "A) AUTO",
+                    "B) IDENTITY",
+                    "C) SEQUENCE",
+                    "D) TABLE"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué estrategia es compatible con PostgreSQL y Oracle?",
+                options: [
+                    "A) IDENTITY",
+                    "B) AUTO",
+                    "C) SEQUENCE",
+                    "D) TABLE"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué estrategia emula secuencias con una tabla (más lenta)?",
+                options: [
+                    "A) AUTO",
+                    "B) IDENTITY",
+                    "C) SEQUENCE",
+                    "D) TABLE"
+                ],
+                correct: 3
+            },
+            {
+                question: "¿Qué anotación personaliza el mapeo de columnas?",
+                options: [
+                    "A) @Field",
+                    "B) @Column",
+                    "C) @Property",
+                    "D) @Attribute"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué parámetro de @Column indica que no puede ser nulo?",
+                options: [
+                    "A) required = true",
+                    "B) notNull = true",
+                    "C) nullable = false",
+                    "D) mandatory = true"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué parámetro de @Column define la longitud máxima?",
+                options: [
+                    "A) maxLength",
+                    "B) size",
+                    "C) length",
+                    "D) max"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué anotación marca un campo que NO se persiste?",
+                options: [
+                    "A) @Ignore",
+                    "B) @Skip",
+                    "C) @Transient",
+                    "D) @NotPersisted"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Para qué se usa @Transient?",
+                options: [
+                    "A) Para claves primarias",
+                    "B) Para atributos calculados o temporales",
+                    "C) Para relaciones",
+                    "D) Para índices"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué anotación se usa para objetos grandes (LOB)?",
+                options: [
+                    "A) @Large",
+                    "B) @Blob",
+                    "C) @Lob",
+                    "D) @BigObject"
+                ],
+                correct: 2
+            },
+
+            // ============ EXAMEN 3: JPA RELACIONES & AVANZADO (34 preguntas) ============
+            // Preguntas 67-100
+            {
+                question: "¿Qué tipo de LOB se usa para textos grandes?",
+                options: [
+                    "A) BLOB",
+                    "B) CLOB",
+                    "C) TEXT",
+                    "D) LONGTEXT"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué tipo de LOB se usa para archivos binarios?",
+                options: [
+                    "A) CLOB",
+                    "B) BINARY",
+                    "C) BLOB",
+                    "D) FILE"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué tipo Java se usa típicamente con BLOB?",
+                options: [
+                    "A) String",
+                    "B) byte[]",
+                    "C) File",
+                    "D) InputStream"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué anotación define una relación uno a uno?",
+                options: [
+                    "A) @SingleRelation",
+                    "B) @OneToOne",
+                    "C) @Unique",
+                    "D) @OnlyOne"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué anotación define una relación uno a muchos?",
+                options: [
+                    "A) @OneToN",
+                    "B) @SingleToMany",
+                    "C) @OneToMany",
+                    "D) @Parent"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué anotación define una relación muchos a uno?",
+                options: [
+                    "A) @NToOne",
+                    "B) @ManyToSingle",
+                    "C) @ManyToOne",
+                    "D) @Child"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué anotación define una relación muchos a muchos?",
+                options: [
+                    "A) @NToN",
+                    "B) @ManyToMany",
+                    "C) @Multiple",
+                    "D) @BothMany"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué anotación especifica la columna de clave foránea?",
+                options: [
+                    "A) @ForeignKey",
+                    "B) @JoinColumn",
+                    "C) @Reference",
+                    "D) @Link"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué anotación configura la tabla intermedia en @ManyToMany?",
+                options: [
+                    "A) @IntermediateTable",
+                    "B) @JoinTable",
+                    "C) @MiddleTable",
+                    "D) @LinkTable"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué parámetro de @JoinTable define las columnas del lado propietario?",
+                options: [
+                    "A) columns",
+                    "B) joinColumns",
+                    "C) ownerColumns",
+                    "D) primaryColumns"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué parámetro de @JoinTable define las columnas del lado inverso?",
+                options: [
+                    "A) reverseColumns",
+                    "B) secondaryColumns",
+                    "C) inverseJoinColumns",
+                    "D) otherColumns"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué atributo indica el lado inverso de una relación bidireccional?",
+                options: [
+                    "A) inverse",
+                    "B) mappedBy",
+                    "C) reversedBy",
+                    "D) linkedBy"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué estructura mantiene el orden de inserción en relaciones?",
+                options: [
+                    "A) Set",
+                    "B) List",
+                    "C) Map",
+                    "D) Queue"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué estructura evita duplicados en relaciones?",
+                options: [
+                    "A) List",
+                    "B) Set",
+                    "C) Array",
+                    "D) Collection"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué tipo de fetch carga los datos inmediatamente?",
+                options: [
+                    "A) FetchType.LAZY",
+                    "B) FetchType.EAGER",
+                    "C) FetchType.IMMEDIATE",
+                    "D) FetchType.NOW"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué tipo de fetch carga los datos solo cuando se acceden?",
+                options: [
+                    "A) FetchType.EAGER",
+                    "B) FetchType.LAZY",
+                    "C) FetchType.DELAYED",
+                    "D) FetchType.ONDEMAND"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué CascadeType propaga todas las operaciones?",
+                options: [
+                    "A) CascadeType.PERSIST",
+                    "B) CascadeType.ALL",
+                    "C) CascadeType.MERGE",
+                    "D) CascadeType.COMPLETE"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué parámetro de @Column define la precisión de un decimal?",
+                options: [
+                    "A) decimal",
+                    "B) precision",
+                    "C) digits",
+                    "D) size"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué parámetro de @Column define los decimales de un número?",
+                options: [
+                    "A) decimals",
+                    "B) scale",
+                    "C) fraction",
+                    "D) precision"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Cómo se mapea un DECIMAL(10,2) en @Column?",
+                options: [
+                    "A) @Column(decimal = \"10,2\")",
+                    "B) @Column(precision = 10, scale = 2)",
+                    "C) @Column(digits = 10, decimals = 2)",
+                    "D) @Column(size = 10, fraction = 2)"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué anotación se usa para definir una clave compuesta embebida?",
+                options: [
+                    "A) @CompositeKey",
+                    "B) @EmbeddedId",
+                    "C) @CompoundId",
+                    "D) @MultipleId"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué anotación marca una clase como embebible?",
+                options: [
+                    "A) @Embedded",
+                    "B) @Embeddable",
+                    "C) @Component",
+                    "D) @Inner"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué interfaz debe implementar una clase con clave compuesta?",
+                options: [
+                    "A) Comparable",
+                    "B) Serializable",
+                    "C) Cloneable",
+                    "D) Identifiable"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué anotación vincula un campo de la clave compuesta con una relación?",
+                options: [
+                    "A) @LinkId",
+                    "B) @MapsId",
+                    "C) @BindId",
+                    "D) @JoinId"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué parámetro de @Table define el esquema de la tabla?",
+                options: [
+                    "A) database",
+                    "B) schema",
+                    "C) namespace",
+                    "D) catalog"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué anotación dentro de @Table define restricciones únicas?",
+                options: [
+                    "A) @Unique",
+                    "B) @UniqueConstraint",
+                    "C) @Constraint",
+                    "D) @UniqueKey"
+                ],
+                correct: 1
+            },
+            {
+                question: "En una relación @OneToMany/@ManyToOne, ¿qué lado es el propietario?",
+                options: [
+                    "A) El lado @OneToMany",
+                    "B) El lado @ManyToOne",
+                    "C) Ambos lados",
+                    "D) Ninguno"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué lado de una relación tiene la clave foránea en la tabla?",
+                options: [
+                    "A) El lado inverso (mappedBy)",
+                    "B) El lado propietario (@JoinColumn)",
+                    "C) Ambos lados",
+                    "D) Una tabla intermedia siempre"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Cuál es el SQL generado para @OneToOne con @JoinColumn(name = \"perfil_id\")?",
+                options: [
+                    "A) FOREIGN KEY (id) REFERENCES perfil(perfil_id)",
+                    "B) FOREIGN KEY (perfil_id) REFERENCES perfil(id)",
+                    "C) JOIN perfil ON perfil_id = perfil.id",
+                    "D) LINK TO perfil(id) AS perfil_id"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué ocurre si no especificas @GeneratedValue en un @Id?",
+                options: [
+                    "A) Se genera automáticamente",
+                    "B) Debes asignar el ID manualmente",
+                    "C) Lanza una excepción",
+                    "D) Usa IDENTITY por defecto"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué estrategia de @GeneratedValue deja que JPA elija?",
+                options: [
+                    "A) IDENTITY",
+                    "B) SEQUENCE",
+                    "C) AUTO",
+                    "D) DEFAULT"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Qué parámetro de @UniqueConstraint define el nombre de la restricción?",
+                options: [
+                    "A) constraintName",
+                    "B) name",
+                    "C) id",
+                    "D) label"
+                ],
+                correct: 1
+            },
+            {
+                question: "¿Qué parámetro de @UniqueConstraint define las columnas?",
+                options: [
+                    "A) columns",
+                    "B) fields",
+                    "C) columnNames",
+                    "D) attributes"
+                ],
+                correct: 2
+            },
+            {
+                question: "¿Cuál es la diferencia principal entre Statement y PreparedStatement?",
+                options: [
+                    "A) Statement es más seguro",
+                    "B) PreparedStatement admite parámetros y previene SQL Injection",
+                    "C) Statement es más rápido",
+                    "D) No hay diferencia"
+                ],
+                correct: 1
+            }
+        ];
+
+        // Variables de estado
+        let currentExam = 1;
+        let currentQuestionIndex = 0;
+        let correctAnswers = 0;
+        let incorrectAttempts = 0;
+        let examQuestions = [];
+
+        // Dividir preguntas por examen
+        function getExamQuestions(examNumber) {
+            if (examNumber === 1) {
+                return allQuestions.slice(0, 33);
+            } else if (examNumber === 2) {
+                return allQuestions.slice(33, 66);
+            } else {
+                return allQuestions.slice(66, 100);
+            }
+        }
+
+        // Iniciar examen
+        function startExam(examNumber) {
+            currentExam = examNumber;
+            currentQuestionIndex = 0;
+            correctAnswers = 0;
+            incorrectAttempts = 0;
+            examQuestions = getExamQuestions(examNumber);
+            
+            document.getElementById('homeScreen').classList.add('hidden');
+            document.getElementById('examScreen').classList.remove('hidden');
+            
+            updateQuestion();
+            updateProgress();
+            updateStats();
+        }
+
+        // Volver al menú
+        function goHome() {
+            document.getElementById('examScreen').classList.add('hidden');
+            document.getElementById('homeScreen').classList.remove('hidden');
+        }
+
+        // Actualizar pregunta
+        function updateQuestion() {
+            const question = examQuestions[currentQuestionIndex];
+            document.getElementById('questionNumber').textContent = `Pregunta ${currentQuestionIndex + 1}`;
+            document.getElementById('questionText').innerHTML = question.question;
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.innerHTML = option;
+                optionDiv.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+        }
+
+        // Actualizar progreso
+        function updateProgress() {
+            const total = examQuestions.length;
+            const progress = (currentQuestionIndex / total) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `Pregunta ${currentQuestionIndex + 1} de ${total}`;
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            document.getElementById('correctCount').textContent = correctAnswers;
+            document.getElementById('incorrectCount').textContent = incorrectAttempts;
+        }
+
+        // Verificar respuesta
+        function checkAnswer(selectedIndex) {
+            const question = examQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            
+            // Deshabilitar todas las opciones
+            options.forEach(opt => opt.classList.add('disabled'));
+            
+            if (selectedIndex === question.correct) {
+                // Respuesta correcta
+                options[selectedIndex].classList.add('correct');
+                correctAnswers++;
+                updateStats();
+                
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    if (currentQuestionIndex >= examQuestions.length) {
+                        showSuccessModal();
+                    } else {
+                        updateQuestion();
+                        updateProgress();
+                    }
+                }, 800);
+            } else {
+                // Respuesta incorrecta
+                options[selectedIndex].classList.add('incorrect');
+                options[question.correct].classList.add('correct');
+                incorrectAttempts++;
+                updateStats();
+                
+                setTimeout(() => {
+                    showFailModal();
+                }, 1000);
+            }
+        }
+
+        // Mostrar modal de éxito
+        function showSuccessModal() {
+            document.getElementById('successMessage').textContent = 
+                `¡Has completado el Examen ${currentExam} con ${correctAnswers} respuestas correctas!`;
+            document.getElementById('successModal').classList.add('show');
+        }
+
+        // Cerrar modal de éxito
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.remove('show');
+            goHome();
+        }
+
+        // Mostrar modal de fallo
+        function showFailModal() {
+            const question = examQuestions[currentQuestionIndex];
+            document.getElementById('failMessage').textContent = 
+                `La respuesta correcta era: ${question.options[question.correct]}. Debes volver a empezar para memorizar mejor.`;
+            document.getElementById('failModal').classList.add('show');
+        }
+
+        // Reiniciar examen
+        function restartExam() {
+            document.getElementById('failModal').classList.remove('show');
+            startExam(currentExam);
+        }
+    </script>
+</body>
+</html>
